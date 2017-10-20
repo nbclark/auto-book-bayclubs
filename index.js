@@ -96,6 +96,7 @@ function main() {
 
               Sequential(daysToCheck.map(date => () => attemptBookingForDate(date, indoorOptionValue)))
                 .then(x => {
+                  console.error();
                   console.error('\t Unable to book a court...');
                   console.error();
                   process.exit(-4);
@@ -160,25 +161,26 @@ function main() {
 
 function attemptBookingForDate(lastDayValue, indoorOptionValue) {
   console.log();
-  console.log(`\t Attempting to book on ${lastDayValue}`);
+  console.log(`\t Attempting to book on ${lastDayValue}...`);
   return new Promise((resolve, reject) => {
     const dayOfWeek = new Date(lastDayValue + ' 12:00 PM').getDay();
 
     let partnerId = null;
     let foundMatchingDay = false;
+    let matchingPattern = null;
     for (let i = 0; i < config.patterns.length; ++i) {
       const pattern = config.patterns[i];
       if (daysOfWeek.indexOf(pattern.dayOfWeek) === dayOfWeek) {
         console.log('\t Found pattern for search day of week...');
         foundMatchingDay = true;
+        matchingPattern = pattern;
         partnerId = pattern.partnerId || config.defaultPartnerId;
         break;
       }
     }
 
     if (!foundMatchingDay) {
-      console.error('\t Pattern not found for booking date. Exiting...');
-      console.log();
+      console.error('\t Pattern not found for booking date. Moving on...');
       return resolve();
     }
 
@@ -215,24 +217,11 @@ function attemptBookingForDate(lastDayValue, indoorOptionValue) {
           }
         }
 
-        // Find a court with consecutive times. Start with 90
-        const searchDate = new Date(lastDayValue + 'T19:00');
-
-        const searchDates = [
-          ['7:00 PM', '7:30 PM', '8:00 PM'],
-          ['7:30 PM', '8:00 PM', '8:30 PM'],
-          ['6:30 PM', '7:00 PM', '7:30 PM'],
-          ['7:00 PM', '7:30 PM'],
-          ['7:30 PM', '8:00 PM'],
-          ['6:30 PM', '7:00 PM'],
-          ['9:00 PM', '9:30 PM'],
-        ];
-
         let foundCourt = null;
         let foundDates = null;
         try {
           console.log('\t Looking for availability...');
-          searchDates.forEach(neededDates => {
+          matchingPattern.timeRanges.forEach(neededDates => {
             Object.keys(map).forEach(court => {
               const available = !neededDates.filter(date => !map[court][date]).length;
               if (available) {
@@ -248,7 +237,6 @@ function attemptBookingForDate(lastDayValue, indoorOptionValue) {
           });
 
           console.log('\t Sorry no matching times found...');
-          console.log();
           return resolve();
         } catch (e) {
           // Hacky, but we have something to book
