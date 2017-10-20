@@ -6,8 +6,10 @@ const URLSearchParams = require('url').URLSearchParams;
 const defaultConfig = {
   username: 'foo@bar.com',
   password: '<FILL THIS IN>',
+  myId: '<FILL IN WITH ID FROM BOOKING SITE>',
   patterns: [
     {
+      partnerId: '<FILL IN WITH PARTNER ID FROM BOOKING SITE - USE 255229 for practice serve>',
       dayOfWeek: 'Monday', // Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday,
       timeRanges: [
         ['7:00 PM', '7:30 PM', '8:00 PM'],
@@ -77,12 +79,14 @@ fetch('https://courtbooking.bayclubs.com/authenticate.lasso?np=8756228e-1bea-48b
 
             const dayOfWeek = new Date(lastDayValue + ' 12:00 PM').getDay();
 
+            let partnerId = null;
             let foundMatchingDay = false;
             for (let i = 0; i < config.patterns.length; ++i) {
               const pattern = config.patterns[i];
               if (daysOfWeek.indexOf(pattern.dayOfWeek) === dayOfWeek) {
                 console.log('\t Found pattern for search day of week...');
                 foundMatchingDay = true;
+                partnerId = pattern.partnerId;
                 break;
               }
             }
@@ -165,8 +169,7 @@ fetch('https://courtbooking.bayclubs.com/authenticate.lasso?np=8756228e-1bea-48b
                   // Hacky, but we have something to book
 
                   const startDate = new Date(lastDayValue + ' ' + foundDates[0]);
-                  const myId = '206143';
-                  const partnerId = '255229';
+                  const myId = config.myId;
                   //https://courtbooking.bayclubs.com/book_court.lasso
                   const parameters = {
                     "date": new Date().toISOString(),
@@ -174,20 +177,22 @@ fetch('https://courtbooking.bayclubs.com/authenticate.lasso?np=8756228e-1bea-48b
                     "ball_machine": 0,
                     "court_range_id": "1",
                     "player_1_id": myId,
-                    "player_2_id": partnerId,
+                    "player_2_id": partnerId, // set up higher
+                    "court_number": foundCourt,
+                    "court_numberString": foundCourt.toString(),
+                    "first_numberString": "",
+                    "first_hourstring": "", "court_hour": startDate.getHours(),
+                    "court_hourstring": startDate.getHours(),
+                    "court_minute": "00", "court_date": lastDayValue,
+                    "start_time": `${startDate.getHours()}:${startDate.getMinutes()}:00`, //"21:00:00",
+                    "court_length": foundDates.length * 30,
+                    // Pretty sure none of this matters...
                     "player_3_id": "", "player_4_id": "",
                     "player_1_first_name": "Nicholas",
                     "player_1_name": "Clark",
                     "player_2_first_name": "Practice",
                     "player_2_name": "Serve", "player_3_first_name": "", "player_3_name": "",
                     "player_4_first_name": "", "player_4_name": "",
-                    "court_number": foundCourt, "court_numberString": foundCourt.toString(),
-                    "first_numberString": "",
-                    "first_hourstring": "", "court_hour": startDate.getHours(),
-                    "court_hourstring": startDate.getHours(),
-                    "court_minute": "00", "court_date": lastDayValue,
-                    "start_time": `${startDate.getHours()}:${startDate.getMinutes()}:00`, //"21:00:00",
-                    "court_length": foundDates.length * 30
                   };
 
                   const formRequest = new URLSearchParams();
@@ -199,11 +204,6 @@ fetch('https://courtbooking.bayclubs.com/authenticate.lasso?np=8756228e-1bea-48b
                       'Content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
                       Host: 'courtbooking.bayclubs.com',
                       Origin: 'https://courtbooking.bayclubs.com',
-                      // 'x-api-key': config.persistiq.apiKey,
-                      // Accept: {
-                      //   'accept-language': 'en-US,en;q=0.8',
-                      //   'Content-Type': 'application/json',
-                      // },
                     },
                     body: formRequest.toString(),
                   })
