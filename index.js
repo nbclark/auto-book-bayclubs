@@ -2,6 +2,7 @@ const fs = require('fs');
 const fetch = require('fetch-cookie')(require('node-fetch'));
 const cheerio = require('cheerio');
 const URLSearchParams = require('url').URLSearchParams;
+const Sequential = require('promise-sequential');
 
 const defaultConfig = {
   username: 'foo@bar.com',
@@ -75,9 +76,13 @@ fetch('https://courtbooking.bayclubs.com/authenticate.lasso?np=8756228e-1bea-48b
           .then(res => res.text())
           .then(res => {
             console.log('\t Got availability...');
-            const firstDayValue = cheerio.load(res)('#myid option:nth-child(1)').val();
-            const lastDayValue = cheerio.load(res)('#myid option:nth-child(5)').val();
-
+            const data = cheerio.load(res);
+            const firstDaySearchString = "jQuery('#tennisfirstday').val('";
+            const firstDayIndex = res.indexOf(firstDaySearchString) + firstDaySearchString.length;
+            const firstDayValue = res.substring(firstDayIndex, firstDayIndex + 10);
+            const lastDaySearchString = "jQuery('#tennislastday').val('";
+            const lastDayIndex = res.indexOf(lastDaySearchString) + lastDaySearchString.length;
+            const lastDayValue = res.substring(lastDayIndex, lastDayIndex + 10);
             const dayOfWeek = new Date(lastDayValue + ' 12:00 PM').getDay();
 
             let partnerId = null;
