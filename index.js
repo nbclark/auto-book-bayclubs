@@ -7,6 +7,7 @@ const defaultConfig = {
   username: 'foo@bar.com',
   password: '<FILL THIS IN>',
   myId: '<FILL IN WITH ID FROM BOOKING SITE>',
+  defaultPartnerId: '255229',
   patterns: [
     {
       partnerId: '<FILL IN WITH PARTNER ID FROM BOOKING SITE - USE 255229 for practice serve>',
@@ -86,7 +87,7 @@ fetch('https://courtbooking.bayclubs.com/authenticate.lasso?np=8756228e-1bea-48b
               if (daysOfWeek.indexOf(pattern.dayOfWeek) === dayOfWeek) {
                 console.log('\t Found pattern for search day of week...');
                 foundMatchingDay = true;
-                partnerId = pattern.partnerId;
+                partnerId = pattern.partnerId || config.defaultPartnerId;
                 break;
               }
             }
