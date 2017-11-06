@@ -1,0 +1,41 @@
+{
+  "username": "nbclark@gmail.com",
+  "password": "Ce-86944",
+  "myId": "206143",
+  "defaultPartnerId": "255229",
+  "patterns": [
+    {
+      "dayOfWeek": "Thursday",
+      "partnerId": "255229",
+      "timeRanges": [
+        [
+          "7:00 PM",
+          "7:30 PM",
+          "8:00 PM"
+        ],
+        [
+          "7:30 PM",
+          "8:00 PM",
+          "8:30 PM"
+        ],
+        [
+          "6:30 PM",
+          "7:00 PM",
+          "7:30 PM"
+        ],
+        [
+          "7:00 PM",
+          "7:30 PM"
+        ],
+        [
+          "7:30 PM",
+          "8:00 PM"
+        ],
+        [
+          "6:30 PM",
+          "7:00 PM"
+        ]
+      ]
+    }
+  ]
+}
